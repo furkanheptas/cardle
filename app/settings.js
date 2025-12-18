@@ -1,6 +1,5 @@
 import { Stack, useRouter } from 'expo-router';
 import { Button, StyleSheet, Text, View } from 'react-native';
-import React from 'react';
 
 export default function SettingsModal() {
   const router = useRouter();
