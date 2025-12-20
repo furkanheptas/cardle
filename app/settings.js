@@ -1,6 +1,9 @@
 import { Stack, useRouter } from 'expo-router';
 import { Button, StyleSheet, Text, View, Alert } from 'react-native';
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { resetStats } from './utils/stats';
+import { t, LANGUAGE_KEY, setStoredLanguage } from './utils/i18n';
 
 export default function SettingsModal() {
   const router = useRouter();
@@ -8,27 +11,57 @@ export default function SettingsModal() {
     resetStats()
       .then((res) => {
         if (res) {
-          Alert.alert('Tamam', 'İstatistikler sıfırlandı.');
+          Alert.alert(t(lang, 'ok'), t(lang, 'settings.reset_ok'));
         } else {
-          Alert.alert('Hata', 'Sıfırlama başarısız oldu.');
+          Alert.alert(t(lang, 'error'), t(lang, 'settings.reset_err'));
         }
       })
       .catch(() => {
-        Alert.alert('Hata', 'Sıfırlama başarısız oldu.');
+        Alert.alert(t(lang, 'error'), t(lang, 'settings.reset_err'));
       });
+  };
+  const [lang, setLang] = useState('tr');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const v = await AsyncStorage.getItem(LANGUAGE_KEY);
+        if (v) setLang(v);
+      } catch (e) {
+        // ignore
+      }
+    })();
+  }, []);
+
+  const changeLang = async (l) => {
+    try {
+      await setStoredLanguage(l);
+      setLang(l);
+    } catch (e) {
+      // ignore
+    }
   };
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ headerTitle: 'Ayarlar' }} />
+      <Stack.Screen options={{ headerTitle: t(lang, 'settings.header') }} />
 
-      <Text style={styles.title}>Ayarlar</Text>
-      <Text style={styles.subtitle}>Ses, Tema? idk, Dil? belki ve Veri Sıfırlama ayarları burada olacak.</Text>
+      <Text style={styles.title}>{t(lang, 'settings.title')}</Text>
+      <Text style={styles.subtitle}>{t(lang, 'settings.subtitle')}</Text>
       
         <View style={{ marginTop: 20 }}>
-          <Button title="Kapat" onPress={() => router.back()} color="#af0000ff" />
+          <Button title={t(lang, 'settings.close')} onPress={() => router.back()} color="#AF6000" />
         </View>
         <View style={{ marginTop: 10 }}>
-          <Button title="Verileri Sıfırla" onPress={confirmReset} color="#AF6000" />
+          <Button title={t(lang, 'settings.reset')} onPress={confirmReset} color="#AF6000" />
+        </View>
+
+        <View style={{ flexDirection: 'row', marginTop: 18, gap: 10 }}>
+          <View style={{ marginRight: 8 }}>
+            <Button title={t(lang, 'settings.lang_tr')} onPress={() => changeLang('tr')} color={lang === 'tr' ? '#AF6000' : '#888'} />
+          </View>
+          <View>
+            <Button title={t(lang, 'settings.lang_en')} onPress={() => changeLang('en')} color={lang === 'en' ? '#AF6000' : '#888'} />
+          </View>
         </View>
     </View>
   );

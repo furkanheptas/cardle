@@ -1,6 +1,8 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { t, LANGUAGE_KEY } from './utils/i18n';
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -107,6 +109,18 @@ const checkGuess = (guessedCar, targetCar) => {
 
 export default function GameScreen() {
   const router = useRouter();
+  const [lang, setLang] = useState('tr');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const v = await AsyncStorage.getItem(LANGUAGE_KEY);
+        if (v) setLang(v);
+      } catch (e) {
+        // ignore
+      }
+    })();
+  }, []);
   const [targetCar, setTargetCar] = useState(getRandomCar());
   const [guessInput, setGuessInput] = useState("");
   const [suggestions, setSuggestions] = useState([]);
@@ -171,7 +185,7 @@ export default function GameScreen() {
 
     const alreadyGuessed = guesses.some((g) => g.car.id === selectedCar.id);
     if (alreadyGuessed) {
-      alert("Bu aracı zaten tahmin ettiniz!");
+      alert(t(lang, 'game.already_guessed'));
       setGuessInput("");
       setSelectedCar(null);
       return;
@@ -226,7 +240,7 @@ export default function GameScreen() {
     >
       <Stack.Screen
         options={{
-          headerTitle: "Tahmin Et",
+              headerTitle: t(lang, 'game.header'),
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => router.back()}
@@ -244,7 +258,7 @@ export default function GameScreen() {
       />
 
       <View style={styles.container}>
-        <Text style={styles.logoText}>Cardle</Text>
+              <Text style={styles.logoText}>Cardle</Text>
 
         <View style={styles.carImageContainer}>
           <Image
@@ -259,7 +273,7 @@ export default function GameScreen() {
           <View style={styles.inputRow}>
             <TextInput
               style={[styles.input, selectedCar ? styles.inputSelected : null]}
-              placeholder="Bir araba yazın..."
+              placeholder={t(lang, 'game.placeholder')}
               placeholderTextColor="#AAA"
               value={guessInput}
               onChangeText={setGuessInput}
@@ -272,7 +286,7 @@ export default function GameScreen() {
               onPress={handleGuess}
               disabled={!selectedCar || isGameOver}
             >
-              <Text style={styles.submitButtonText}>Tahmin Et</Text>
+              <Text style={styles.submitButtonText}>{t(lang, 'game.guess')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -347,16 +361,16 @@ export default function GameScreen() {
 
         {isGameOver && (
           <View style={styles.gameOverContainer}>
-            <Text style={styles.gameOverText}>
-              {isGameWon ? "Tebrikler! Bildiniz 🏎️" : "Oyun Bitti"}
-            </Text>
+              <Text style={styles.gameOverText}>
+                {isGameWon ? t(lang, 'game.congrats') : t(lang, 'game.over')}
+              </Text>
             <TouchableOpacity
               style={styles.newGameButton}
               onPress={startNewGame}
             >
-              <Text style={{ color: "#fff", fontWeight: "bold" }}>
-                Yeni Oyun
-              </Text>
+                <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                  {t(lang, 'game.new')}
+                </Text>
             </TouchableOpacity>
           </View>
         )}

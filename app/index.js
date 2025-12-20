@@ -1,24 +1,39 @@
 import { Stack, useRouter } from "expo-router";
 import { StyleSheet, Text, View, TouchableOpacity, Pressable } from "react-native";
+import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { t, LANGUAGE_KEY } from './utils/i18n';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function Index() {
   const router = useRouter();
+  const [lang, setLang] = useState('tr');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const v = await AsyncStorage.getItem(LANGUAGE_KEY);
+        if (v) setLang(v);
+      } catch (e) {
+        // ignore
+      }
+    })();
+  }, []);
 
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ headerTitle: 'Cardle' }} />
 
-      <Text style={styles.title}>CARDLE</Text>
-      <Text style={styles.subtitle}>Hoşgeldiniz</Text>
+      <Text style={styles.title}>{t(lang, 'app.title').toUpperCase()}</Text>
+      <Text style={styles.subtitle}>{t(lang, 'index.welcome')}</Text>
 
       <View style={{ width: "100%", marginTop: 20, alignItems: 'center' }}>
         <TouchableOpacity style={styles.startButton} onPress={() => router.push('/game')} activeOpacity={0.85}>
-          <Text style={styles.startButtonText}>BAŞLA</Text>
+          <Text style={styles.startButtonText}>{t(lang, 'index.start')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.linkButton} onPress={() => router.push('/stats')}>
-          <Text style={styles.linkButtonText}>İstatistikler</Text>
+          <Text style={styles.linkButtonText}>{t(lang, 'index.statistics')}</Text>
         </TouchableOpacity>
 
       </View>
