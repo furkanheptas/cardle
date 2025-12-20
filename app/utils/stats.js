@@ -43,3 +43,13 @@ export async function recordGameResult(won) {
     return null;
   }
 }
+
+export async function resetStats() {
+  try {
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(defaultStats));
+    return { ...defaultStats };
+  } catch (e) {
+    console.warn('resetStats error', e);
+    return null;
+  }
+}
