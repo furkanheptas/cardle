@@ -1,6 +1,7 @@
 import { Stack, useRouter } from "expo-router";
 import { StyleSheet, Text, View, TouchableOpacity, Pressable } from "react-native";
 import { useState, useEffect } from 'react';
+import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { t, LANGUAGE_KEY } from './utils/i18n';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -8,21 +9,25 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 export default function Index() {
   const router = useRouter();
   const [lang, setLang] = useState('tr');
+  const isFocused = useIsFocused();
 
   useEffect(() => {
+    let mounted = true;
+    if (!isFocused) return;
     (async () => {
       try {
         const v = await AsyncStorage.getItem(LANGUAGE_KEY);
-        if (v) setLang(v);
+        if (v && mounted) setLang(v);
       } catch (e) {
-        // ignore
+        //
       }
     })();
-  }, []);
+    return () => { mounted = false; };
+  }, [isFocused]);
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ headerTitle: 'Cardle' }} />
+      <Stack.Screen options={{ headerTitle: t(lang, 'app.title') }} />
 
       <Text style={styles.title}>{t(lang, 'app.title').toUpperCase()}</Text>
       <Text style={styles.subtitle}>{t(lang, 'index.welcome')}</Text>

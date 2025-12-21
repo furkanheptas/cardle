@@ -11,7 +11,7 @@ const translations = {
 
     'settings.header': 'Ayarlar',
     'settings.title': 'Ayarlar',
-    'settings.subtitle': 'Ses, Tema? idk, Dil? belki ve Veri Sıfırlama ayarları burada olacak.',
+    'settings.subtitle': 'Dil',
     'settings.close': 'Kapat',
     'settings.reset': 'Verileri Sıfırla',
     'settings.reset_ok': 'İstatistikler sıfırlandı.',
@@ -45,7 +45,7 @@ const translations = {
 
     'settings.header': 'Settings',
     'settings.title': 'Settings',
-    'settings.subtitle': 'Sound, Theme, Language toggle and data reset options will be here.',
+    'settings.subtitle': 'Language',
     'settings.close': 'Close',
     'settings.reset': 'Reset Data',
     'settings.reset_ok': 'Statistics reset.',

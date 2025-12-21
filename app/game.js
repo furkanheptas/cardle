@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
+import { useIsFocused } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { t, LANGUAGE_KEY } from './utils/i18n';
 import {
@@ -111,16 +112,23 @@ export default function GameScreen() {
   const router = useRouter();
   const [lang, setLang] = useState('tr');
 
+  const isFocused = useIsFocused();
+
   useEffect(() => {
+    let mounted = true;
+    if (!isFocused) return;
     (async () => {
       try {
         const v = await AsyncStorage.getItem(LANGUAGE_KEY);
-        if (v) setLang(v);
+        if (v && mounted) setLang(v);
       } catch (e) {
-        // ignore
+        //
       }
     })();
-  }, []);
+    return () => { mounted = false; };
+  }, [isFocused]);
+
+
   const [targetCar, setTargetCar] = useState(getRandomCar());
   const [guessInput, setGuessInput] = useState("");
   const [suggestions, setSuggestions] = useState([]);
@@ -129,6 +137,11 @@ export default function GameScreen() {
   const [isGameOver, setIsGameOver] = useState(false);
   const [isGameWon, setIsGameWon] = useState(false);
   const [statsRecorded, setStatsRecorded] = useState(false);
+
+  const maxBlur = 20;
+  const blurRadius = isGameOver || guesses.length >= 7
+    ? 0
+    : Math.max(0, Math.round(maxBlur - (Math.min(guesses.length, 7) / 7) * maxBlur));
 
   const startNewGame = useCallback(() => {
     setTargetCar(getRandomCar());
@@ -200,6 +213,11 @@ export default function GameScreen() {
     if (isCorrect) {
       setIsGameOver(true);
       setIsGameWon(true);
+    } else {
+      const newCount = guesses.length + 1;
+      if (newCount >= 7) {
+        setIsGameOver(true);
+      }
     }
 
     setGuessInput("");
@@ -266,6 +284,7 @@ export default function GameScreen() {
             style={styles.carImage}
             resizeMode="cover"
             defaultSource={{ uri: PLACEHOLDER_IMAGE }}
+            blurRadius={blurRadius}
           />
         </View>
 
