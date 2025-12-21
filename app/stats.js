@@ -2,9 +2,18 @@ import { Stack } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 import { useEffect, useState } from 'react';
 import { getStats } from './utils/stats';
+import { t, getStoredLanguage } from './utils/i18n';
 
 export default function StatsScreen() {
   const [stats, setStats] = useState(null);
+  const [lang, setLang] = useState('tr');
+
+  useEffect(() => {
+    (async () => {
+      const l = await getStoredLanguage();
+      setLang(l || 'tr');
+    })();
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -17,30 +26,30 @@ export default function StatsScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ headerTitle: 'İstatistikler' }} />
+      <Stack.Screen options={{ headerTitle: t(lang, 'stats.header') }} />
       
-      <Text style={styles.title}>İstatistiklerim</Text>
+      <Text style={styles.title}>{t(lang, 'stats.my_stats')}</Text>
       {stats ? (
         <View style={styles.cardsRow}>
           <View style={styles.card}>
             <Text style={styles.cardNumber}>{stats.totalGames}</Text>
-            <Text style={styles.cardLabel}>Toplam Oyun</Text>
+            <Text style={styles.cardLabel}>{t(lang, 'stats.total_games')}</Text>
           </View>
           <View style={styles.card}>
             <Text style={styles.cardNumber}>{stats.totalWins}</Text>
-            <Text style={styles.cardLabel}>Kazanç</Text>
+            <Text style={styles.cardLabel}>{t(lang, 'stats.total_wins')}</Text>
           </View>
           <View style={styles.card}>
             <Text style={styles.cardNumber}>{winRate}%</Text>
-            <Text style={styles.cardLabel}>Kazanma Oranı</Text>
+            <Text style={styles.cardLabel}>{t(lang, 'stats.win_rate')}</Text>
           </View>
         </View>
       ) : (
-        <Text style={styles.subtitle}>İstatistikler yükleniyor…</Text>
+        <Text style={styles.subtitle}>{t(lang, 'stats.loading')}</Text>
       )}
 
       <View style={{ marginTop: 24 }}>
-        <Text style={styles.subtitle}>Seri: {stats ? stats.currentStreak : 0} | En Uzun Seri: {stats ? stats.maxStreak : 0}</Text>
+        <Text style={styles.subtitle}>{`${t(lang, 'stats.current_streak')}: ${stats ? stats.currentStreak : 0} | ${t(lang, 'stats.max_streak')}: ${stats ? stats.maxStreak : 0}`}</Text>
       </View>
     </View>
   );
